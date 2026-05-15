@@ -1,0 +1,12 @@
+[package]
+name = "cargo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+task = { path = "../task" }
+worker = { path = "../worker" }
+manager = { path = "../manager" }
+node = { path = "../node" }
+uuid = { workspace = true }
+chrono = { workspace = true }
