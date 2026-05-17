@@ -3,10 +3,13 @@ use uuid::Uuid;
 
 use manager::Manager;
 use node::Node;
-use task::{Task, TaskEvent, TaskState};
+use task::{Task, TaskEvent, TaskState, create_container, stop_container};
 use worker::Worker;
 
-fn main() {
+use std::time::Duration;
+
+#[tokio::main]
+async fn main() {
     // Создаем задачу
     let task = Task::new(
         Uuid::new_v4(),
@@ -52,4 +55,25 @@ fn main() {
     );
 
     println!("node: {:?}", node);
+
+    println!("create a test container");
+    let (docker_task, create_result) = match create_container().await {
+        Ok(result) => result,
+        Err(e) => {
+            println!("Error creating container: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    if create_result.error.is_some() {
+        println!("{:?}", create_result.error);
+        std::process::exit(1);
+    }
+
+    println!("Container started with ID: {}", create_result.container_id);
+
+    tokio::time::sleep(Duration::from_secs(5)).await;
+
+    println!("stopping container {}", create_result.container_id);
+    let _ = stop_container(&docker_task, &create_result.container_id).await;
 }

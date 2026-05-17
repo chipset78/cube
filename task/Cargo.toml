@@ -8,3 +8,5 @@ serde = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
 bollard = { workspace = true }
+futures-util = "0.3.32"
+anyhow = "1.0.102"

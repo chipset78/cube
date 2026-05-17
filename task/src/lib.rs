@@ -1,9 +1,14 @@
+pub mod docker;
+pub use docker::{
+    ContainerConfig, DockerContainer, DockerResult, create_container, stop_container,
+};
+
 use bollard::models::PortBinding;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Состояние задачи — enum с дополнительными данными для каждого варианта
+/// Состояние задачи
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum TaskState {
     /// Ожидает назначения на воркер
@@ -50,8 +55,8 @@ pub struct Task {
 
     // Docker-specific
     pub container_id: Option<String>,
-    pub exposed_ports: Vec<u16>, // Option<Vec<String>> - порты, которые открывает контейнер
-    pub port_bindings: Vec<PortBinding>, // маппинг на хост (из bollard)
+    pub exposed_ports: Vec<u16>, // порты, которые открывает контейнер
+    pub port_bindings: Vec<PortBinding>, // маппинг на хост
     pub restart_policy: RestartPolicy,
     pub env_vars: Vec<String>,
 
@@ -86,7 +91,7 @@ impl Task {
     }
 }
 
-/// Политика перезапуска — тоже enum
+/// Политика перезапуска
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum RestartPolicy {
     #[default]

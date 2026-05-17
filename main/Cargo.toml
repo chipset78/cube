@@ -10,3 +10,5 @@ manager = { path = "../manager" }
 node = { path = "../node" }
 uuid = { workspace = true }
 chrono = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }

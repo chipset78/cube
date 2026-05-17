@@ -10,9 +10,9 @@ members = [
 ]
 
 [workspace.dependencies]
-# Общие зависимости для всех подпроектов
-bollard = "0.21.0"
 anyhow = "1.0.102"
+futures-util = "0.3.32"
+bollard = { version = "0.21.0", features = ["http"] }
 tokio = { version = "1.52.3", features = ["full"] }
 serde = { version = "1.0.228", features = ["derive"] }
 uuid = { version = "1.23.1", features = ["v4", "serde"] }
