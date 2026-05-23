@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 /// Состояние задачи
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskState {
     /// Ожидает назначения на воркер
     Pending,
@@ -25,6 +25,15 @@ pub enum TaskState {
         finished_at: DateTime<Utc>,
     },
 }
+
+impl PartialEq for TaskState {
+    fn eq(&self, other: &Self) -> bool {
+        // Сравниваем только варианты, игнорируя внутренние данные
+        std::mem::discriminant(self) == std::mem::discriminant(other)
+    }
+}
+
+impl Eq for TaskState {}
 
 impl TaskState {
     /// Проверка, активна ли задача (выполняется или ожидает)

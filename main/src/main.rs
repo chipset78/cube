@@ -1,4 +1,6 @@
 use chrono::Utc;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use manager::Manager;
@@ -27,13 +29,19 @@ async fn main() {
     println!("task event: {:?}", task_event);
 
     // Создаем worker
-    let worker = Worker::new("worker-1".to_string());
+    let mut worker = Worker::new("worker-1".to_string());
 
     println!("worker: {:?}", worker);
-    worker.collect_stats();
-    worker.run_task();
-    worker.start_task();
-    worker.stop_task();
+    worker.collect_stats().await;
+
+    // Добавляем задачу в очередь и БД
+    worker.add_task(task.clone());
+    let task_arc = Arc::new(Mutex::new(task.clone()));
+    worker.db.insert(task.id, task_arc.clone());
+
+    worker.run_task().await;
+    worker.start_task(task_arc.clone()).await;
+    worker.stop_task(task_arc).await;
 
     // Создаем manager
     let mut manager = Manager::new();
