@@ -5,10 +5,20 @@ use bollard::models::{RestartPolicy, RestartPolicyNameEnum};
 use bollard::plugin::ContainerCreateBody;
 use bollard::query_parameters::{
     CreateContainerOptions, CreateImageOptions, LogsOptions, RemoveContainerOptions,
-    StartContainerOptions, StopContainerOptions,
+    StartContainerOptions, StopContainerOptions, ListContainersOptions,
 };
 use futures_util::stream::TryStreamExt;
 use std::io::{self, Write};
+
+/// Информация о контейнере для отображения
+#[derive(Debug)]
+pub struct ContainerInfo {
+    pub id: String,
+    pub short_id: String,
+    pub name: String,
+    pub status: String,
+    pub image: String,
+}
 
 /// Конфигурация контейнера
 #[derive(Debug, Clone)]
@@ -78,6 +88,11 @@ impl ContainerConfig {
         }
         self
     }
+
+    pub fn with_restart_policy(mut self, policy: String) -> Self {
+        self.restart_policy = policy;
+        self
+    }
 }
 
 /// Результат Docker операции
@@ -114,6 +129,7 @@ impl DockerResult {
 }
 
 /// Docker клиент
+#[derive(Debug)]
 pub struct DockerContainer {
     pub client: Docker,
     pub config: ContainerConfig,
@@ -247,6 +263,43 @@ impl DockerContainer {
         }
 
         DockerResult::success("stop", id)
+    }
+
+    /// Получить список всех контейнеров
+    pub async fn list_containers(&self, all: bool) -> Result<Vec<ContainerInfo>, String> {
+        let options = ListContainersOptions {
+            all,
+            ..Default::default()
+        };
+
+        match self.client.list_containers(Some(options)).await {
+            Ok(containers) => {
+                let mut result = Vec::new();
+                
+                for container in containers {
+                    let id = container.id.unwrap_or_default();
+                    let short_id = if id.len() > 12 { id[..12].to_string() } else { id.clone() };
+                    let names = container.names.unwrap_or_default();
+                    let name = names
+                        .first()
+                        .map(|n| n.trim_start_matches('/').to_string())
+                        .unwrap_or_default();
+                    let status = container.status.unwrap_or_default();
+                    let image = container.image.unwrap_or_default();
+                    
+                    result.push(ContainerInfo {
+                        id,
+                        short_id,
+                        name,
+                        status,
+                        image,
+                    });
+                }
+                
+                Ok(result)
+            }
+            Err(e) => Err(format!("Ошибка при получении списка контейнеров: {}", e)),
+        }
     }
 
     /// Pull образа

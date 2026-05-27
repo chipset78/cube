@@ -8,7 +8,12 @@ task = { path = "../task" }
 worker = { path = "../worker" }
 manager = { path = "../manager" }
 node = { path = "../node" }
-uuid = { workspace = true }
-chrono = { workspace = true }
+
 tokio = { workspace = true }
 anyhow = { workspace = true }
+serde = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+bollard = { workspace = true }
+
+clap = { version = "4.0", features = ["derive"] }
