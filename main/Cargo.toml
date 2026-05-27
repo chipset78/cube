@@ -1,0 +1,19 @@
+[package]
+name = "cargo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+task = { path = "../task" }
+worker = { path = "../worker" }
+manager = { path = "../manager" }
+node = { path = "../node" }
+
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+bollard = { workspace = true }
+
+clap = { version = "4.0", features = ["derive"] }
